@@ -1,0 +1,17 @@
+services:
+  web:
+    build: backend
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:15
+
+  redis:
+    image: redis
+
+  celery:
+    build: backend
+    command: celery -A config worker -B
+
+  bot:
+    build: bot
