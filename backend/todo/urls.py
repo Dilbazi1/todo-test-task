@@ -2,11 +2,7 @@ from rest_framework.routers import DefaultRouter
 from .views import TaskViewSet, CategoryViewSet
 
 router = DefaultRouter()
-router.register("tasks", TaskViewSet)
-router.register("categories", CategoryViewSet)
+router.register("tasks", TaskViewSet, basename="task")
+router.register("categories", CategoryViewSet, basename="category")
 
 urlpatterns = router.urls
-
-
-
-
