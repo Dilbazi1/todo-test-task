@@ -32,6 +32,10 @@ Bash
 docker compose up --build
 Backend доступен по адресу: http://localhost:8000
 Telegram-бот автоматически подключен к backend
+
+
+
+
 Архитектура решения
 Backend (Django)
 Модели: UserProfile, Task, Category
@@ -46,6 +50,9 @@ Telegram Bot (Aiogram + Dialog)
 Docker
 Контейнеры: backend, bot, db (PostgreSQL), redis (для Celery)
 Docker Compose обеспечивает корректное взаимодействие сервисов.
+
+
+
  Сложности и решения
 SynchronousOnlyOperation
 Проблема: прямые ORM-запросы в async-хендлерах бота.
