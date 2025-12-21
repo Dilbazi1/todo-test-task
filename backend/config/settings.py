@@ -16,6 +16,8 @@ from datetime import timedelta
 
 
 import environ
+
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,9 @@ env = environ.Env(
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
-
+STATIC_URL = '/static/' 
+STATICFILES_DIRS = [BASE_DIR/'static']
+STATIC_ROOT = BASE_DIR/'staticfiles' 
 
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-*m6z&(xi5u3y@3*dp^b%ct*-$!v9l*9@^puw@v2+j_e&u3i1kx")
 DEBUG = env("DEBUG")
@@ -39,10 +43,9 @@ DEBUG = env("DEBUG")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-ALLOWED_HOSTS = []
 TIME_ZONE = "America/Adak"
 USE_TZ = True
-
+ALLOWED_HOSTS = ["*"] 
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,7 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "todo",
+    'backend.todo', 
     "rest_framework_simplejwt.token_blacklist",
 ]
 
@@ -65,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -91,10 +95,25 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", "todo"),
+        "USER": os.getenv("DB_USER", "todo_user"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "todo_pass"),
+        "HOST": os.getenv("DB_HOST", "db"),   # имя сервиса из docker-compose
+        "PORT": os.getenv("DB_PORT", "5432"),
+        "CONN_MAX_AGE": 60,
+        "OPTIONS": {
+            "sslmode": "disable",
+        },
     }
 }
 
@@ -156,3 +175,19 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
      "UPDATE_LAST_LOGIN": True,
 }
+
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "America/Adak"
+
+CELERY_BEAT_SCHEDULE = {
+    "check_due_tasks_every_minute": {
+        "task": "todo.tasks.send_due_task_notifications",
+        "schedule": 60.0,  
+    },
+}
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

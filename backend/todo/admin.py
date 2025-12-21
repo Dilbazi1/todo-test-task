@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from .models import Task, Category
+from backend.todo.models import Task, Category,UserProfile
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -12,3 +12,8 @@ class TaskAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "user")
     search_fields = ("name",)
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("telegram_id", "telegram_link_code","user")
+    # search_fields = ("user")
